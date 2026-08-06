@@ -36,6 +36,7 @@ jobs:
             lzop \
             python \
             python-dev \
+            python3 \
             unzip \
             wget \
             xz-utils \
