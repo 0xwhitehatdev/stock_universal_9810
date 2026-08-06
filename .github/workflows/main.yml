@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: ubuntu:18.04
+      image: ubuntu-24.04
 
     env:
       ARCH: arm64
