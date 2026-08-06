@@ -43,23 +43,22 @@ jobs:
 
       - name: Clone toolchains
         run: |
-          mkdir toolchains
+          mkdir toolchain
+          git clone https://github.com/0xwhitehatdev/toolchain_4_9_aarch64.git toolchain
 
-          # Android Clang r383902 (Android 10)
-          git clone --depth=1 \
-            https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 \
-            toolchains/clang
+      - name: Setup toolchain
+        run: |
+           TC="$GITHUB_WORKSPACE/toolchain/gcc-cfp/gcc-ibv-jopp"
 
-          # AArch64 GCC 4.9
-          git clone --depth=1 \
-            https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 \
-            toolchains/gcc64
+           echo "$TC/aarch64-linux-android-4.9/bin" >> "$GITHUB_PATH"
+           echo "$TC/arm-linux-androideabi-4.9/bin" >> "$GITHUB_PATH"
 
-          # ARM32 GCC 4.9
-          git clone --depth=1 \
-            https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9 \
-            toolchains/gcc32
-
+           echo "ARCH=arm64" >> $GITHUB_ENV
+           echo "SUBARCH=arm64" >> $GITHUB_ENV
+           echo "CROSS_COMPILE=$TC/aarch64-linux-android-4.9/bin/aarch64-linux-android-" >> $GITHUB_ENV
+           ls toolchain 
+           aarch64-linux-android-gcc --version
+           
       - name: Configure environment
         run: |
           echo "$GITHUB_WORKSPACE/toolchains/clang/clang-r383902/bin" >> $GITHUB_PATH
