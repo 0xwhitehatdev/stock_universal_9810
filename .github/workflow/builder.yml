@@ -1,0 +1,93 @@
+name: Build Android Kernel
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ubuntu:18.04
+
+    env:
+      ARCH: arm64
+      SUBARCH: arm64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y \
+            bc \
+            bison \
+            build-essential \
+            ca-certificates \
+            ccache \
+            curl \
+            flex \
+            git \
+            libelf-dev \
+            libncurses5-dev \
+            libssl-dev \
+            lzop \
+            python \
+            python-dev \
+            unzip \
+            wget \
+            xz-utils \
+            zip
+
+      - name: Clone toolchains
+        run: |
+          mkdir toolchains
+
+          # Android Clang r383902 (Android 10)
+          git clone --depth=1 \
+            https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 \
+            toolchains/clang
+
+          # AArch64 GCC 4.9
+          git clone --depth=1 \
+            https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 \
+            toolchains/gcc64
+
+          # ARM32 GCC 4.9
+          git clone --depth=1 \
+            https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9 \
+            toolchains/gcc32
+
+      - name: Configure environment
+        run: |
+          echo "$GITHUB_WORKSPACE/toolchains/clang/clang-r383902/bin" >> $GITHUB_PATH
+
+          echo "CROSS_COMPILE=$GITHUB_WORKSPACE/toolchains/gcc64/bin/aarch64-linux-android-" >> $GITHUB_ENV
+          echo "CROSS_COMPILE_ARM32=$GITHUB_WORKSPACE/toolchains/gcc32/bin/arm-linux-androideabi-" >> $GITHUB_ENV
+          echo "CC=clang" >> $GITHUB_ENV
+          echo "CLANG_TRIPLE=aarch64-linux-gnu-" >> $GITHUB_ENV
+
+      - name: Build
+        run: |
+          mkdir -p out
+
+          make O=out ARCH=arm64 exynos9810-crownlte_defconfig
+
+          make -j$(nproc) \
+            O=out \
+            ARCH=arm64 \
+            CC=$CC \
+            CLANG_TRIPLE=$CLANG_TRIPLE \
+            CROSS_COMPILE=$CROSS_COMPILE \
+            CROSS_COMPILE_ARM32=$CROSS_COMPILE_ARM32
+
+      - name: Upload kernel
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel
+          path: |
+            out/arch/arm64/boot/Image*
+            out/arch/arm64/boot/dtb*
+            out/arch/arm64/boot/dts/**/*.dtb
