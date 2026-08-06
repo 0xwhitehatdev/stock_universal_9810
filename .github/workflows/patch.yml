@@ -27,23 +27,22 @@ jobs:
 
       - name: Extract artifact (if zipped)
         run: |
-          mkdir kernel
+          mkdir out/kernel -p
 
           FILE=$(find artifact -maxdepth 1 -type f | head -1)
 
           case "$FILE" in
             *.zip)
-              unzip -o "$FILE" -d kernel
+              unzip -o "$FILE" -d out/kernel
               ;;
             *.tar.gz|*.tgz)
-              tar -xzf "$FILE" -C kernel
+              tar -xzf "$FILE" -C out/kernel
               ;;
             *)
-              cp -r artifact/* kernel/
+              cp -r artifact/* out/kernel/
               ;;
           esac
 
-          find kernel
 
       - name: Clone Local Kitchen 
         run: |
@@ -68,8 +67,7 @@ jobs:
 
       - name: Replace kernel
         run: |
-          ls unpack 
-          
+          cp out/kernel/Image unpack/boot.img-kernel
 
       - name: Repack boot.img
         run: |
