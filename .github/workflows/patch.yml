@@ -1,1 +1,76 @@
+name: Patch Boot Image
 
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  patch:
+    runs-on: ubuntu-26.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone Local Kitchen 
+        run: |
+             git clone --depth=1 https://github.com/0xwhitehatdev/Kitchen.git
+
+      - name: Clone mktool
+        run: |
+          git clone --depth=1 https://github.com/GameTheory-/mktool.git
+
+      - name: Make backend tools executable
+        run: |
+          chmod +x mktool/tools/*
+          ls -lah mktool/tools
+
+      - name: Unpack boot.img
+        run: |
+          mkdir unpack
+
+          ./mktool/tools/unpackbootimg \
+            -i Kitchen/boot.img \
+            -o unpack
+
+      - name: Replace kernel
+        run: |
+          ls unpack 
+          
+
+      - name: Repack boot.img
+        run: |
+          CMDLINE=$(cat unpack/boot.img-cmdline)
+          BASE=$(cat unpack/boot.img-base)
+          PAGESIZE=$(cat unpack/boot.img-pagesize)
+          KOFF=$(cat unpack/boot.img-kernel_offset)
+          ROFF=$(cat unpack/boot.img-ramdisk_offset)
+          SOFF=$(cat unpack/boot.img-second_offset)
+          TOFF=$(cat unpack/boot.img-tags_offset)
+          HASH=$(cat unpack/boot.img-hash)
+
+          DT=""
+
+          if [ -f unpack/boot.img-dt ]; then
+            DT="--dt unpack/boot.img-dt"
+          fi
+
+          ./mktool/tools/mkbootimg \
+            --kernel unpack/boot.img-zImage \
+            --ramdisk unpack/boot.img-ramdisk.gz \
+            --cmdline "$CMDLINE" \
+            --base "$BASE" \
+            --pagesize "$PAGESIZE" \
+            --kernel_offset "$KOFF" \
+            --ramdisk_offset "$ROFF" \
+            --second_offset "$SOFF" \
+            --tags_offset "$TOFF" \
+            --hash "$HASH" \
+            $DT \
+            -o boot-new.img
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: boot-new
+          path: boot-new.img
