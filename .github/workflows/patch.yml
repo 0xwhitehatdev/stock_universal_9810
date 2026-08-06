@@ -13,6 +13,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Download latest successful kernel artifact
+        uses: dawidd6/action-download-artifact@v9
+        with:
+          workflow: main.yml          # <-- your build workflow filename
+          workflow_conclusion: success
+          name: kernel                 # <-- artifact name from build workflow
+          path: artifact
+
+      - name: Verify artifact
+        run: |
+          ls -lah artifact
+
+      - name: Extract artifact (if zipped)
+        run: |
+          mkdir kernel
+
+          FILE=$(find artifact -maxdepth 1 -type f | head -1)
+
+          case "$FILE" in
+            *.zip)
+              unzip -o "$FILE" -d kernel
+              ;;
+            *.tar.gz|*.tgz)
+              tar -xzf "$FILE" -C kernel
+              ;;
+            *)
+              cp -r artifact/* kernel/
+              ;;
+          esac
+
+          find kernel
+
       - name: Clone Local Kitchen 
         run: |
              git clone --depth=1 https://github.com/0xwhitehatdev/Kitchen.git
