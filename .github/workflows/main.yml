@@ -53,14 +53,13 @@ jobs:
            echo "$TC/aarch64-linux-android-4.9/bin" >> "$GITHUB_PATH"
 
            echo "ARCH=arm64" >> $GITHUB_ENV
-           echo "SUBARCH=arm64" >> $GITHUB_ENV
            echo "CROSS_COMPILE=$TC/aarch64-linux-android-4.9/bin/aarch64-linux-android-" >> $GITHUB_ENV
            
 
       - name: Build
         run: |
-
-          make ARCH=arm64 ANDROID_MAJOR_VERSION=q exynos9810-crownlte_defconfig 
+          echo "ANDROID_MAJOR_VERSION=q" >> $GITHUB_ENV
+          make ARCH=arm64 exynos9810-crownlte_defconfig 
 
           make -j$(nproc) \
             ARCH=arm64 \
