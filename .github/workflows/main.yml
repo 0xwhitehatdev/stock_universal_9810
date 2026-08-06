@@ -51,42 +51,26 @@ jobs:
            TC="$GITHUB_WORKSPACE/toolchain/gcc-cfp/gcc-ibv-jopp"
 
            echo "$TC/aarch64-linux-android-4.9/bin" >> "$GITHUB_PATH"
-           echo "$TC/arm-linux-androideabi-4.9/bin" >> "$GITHUB_PATH"
 
            echo "ARCH=arm64" >> $GITHUB_ENV
            echo "SUBARCH=arm64" >> $GITHUB_ENV
            echo "CROSS_COMPILE=$TC/aarch64-linux-android-4.9/bin/aarch64-linux-android-" >> $GITHUB_ENV
-           ls toolchain 
-           aarch64-linux-android-gcc --version
            
-      - name: Configure environment
-        run: |
-          echo "$GITHUB_WORKSPACE/toolchains/clang/clang-r383902/bin" >> $GITHUB_PATH
-
-          echo "CROSS_COMPILE=$GITHUB_WORKSPACE/toolchains/gcc64/bin/aarch64-linux-android-" >> $GITHUB_ENV
-          echo "CROSS_COMPILE_ARM32=$GITHUB_WORKSPACE/toolchains/gcc32/bin/arm-linux-androideabi-" >> $GITHUB_ENV
-          echo "CC=clang" >> $GITHUB_ENV
-          echo "CLANG_TRIPLE=aarch64-linux-gnu-" >> $GITHUB_ENV
 
       - name: Build
         run: |
-          mkdir -p out
 
-          make O=out ARCH=arm64 exynos9810-crownlte_defconfig
+          make ARCH=arm64 ANDROID_MAJOR_VERSION=q exynos9810-crownlte_defconfig 
 
           make -j$(nproc) \
-            O=out \
             ARCH=arm64 \
-            CC=$CC \
-            CLANG_TRIPLE=$CLANG_TRIPLE \
-            CROSS_COMPILE=$CROSS_COMPILE \
-            CROSS_COMPILE_ARM32=$CROSS_COMPILE_ARM32
+            CROSS_COMPILE=$CROSS_COMPILE 
 
       - name: Upload kernel
         uses: actions/upload-artifact@v4
         with:
           name: kernel
           path: |
-            out/arch/arm64/boot/Image*
-            out/arch/arm64/boot/dtb*
-            out/arch/arm64/boot/dts/**/*.dtb
+            arch/arm64/boot/Image*
+            arch/arm64/boot/dtb*
+            arch/arm64/boot/dts/**/*.dtb
