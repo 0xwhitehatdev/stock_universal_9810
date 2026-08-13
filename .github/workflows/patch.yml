@@ -73,11 +73,6 @@ jobs:
       - name: Repack boot.img
         run: |
 
-          DT=""
-
-          if [ -f unpack/boot.img-dt ]; then
-            DT="--dt unpack/boot.img-dt"
-          fi
 
           BASE=$(cat unpack/boot.img-base)
           BOARD=$(cat unpack/boot.img-board)
@@ -103,7 +98,7 @@ jobs:
                 --ramdisk_offset "$ROFF" \
                 --second_offset "$SOFF" \
                 --tags_offset "$TOFF" \
-                "$DT" \
+                --dt unpack/boot.img-dt \
                 --board "$BOARD" \
                 --os_version "$OS_VERSION" \
                 --os_patch_level "$PATCH_LVL" \
