@@ -64,6 +64,7 @@ jobs:
           ./mktool/tools/unpackbootimg \
             -i Kitchen/boot.img \
             -o unpack
+          ls unpack
 
       - name: Replace kernel
         run: |
@@ -96,10 +97,9 @@ jobs:
             --ramdisk_offset "$ROFF" \
             --second_offset "$SOFF" \
             --tags_offset "$TOFF" \
-            # --hash "$HASH" \
             $DT \
             -o boot-new.img
-
+            
       - uses: actions/upload-artifact@v4
         with:
           name: boot-new
