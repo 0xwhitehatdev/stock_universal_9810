@@ -82,14 +82,13 @@ jobs:
           BASE=$(cat unpack/boot.img-base)
           BOARD=$(cat unpack/boot.img-board)
           CMDLINE=$(cat unpack/boot.img-cmdline)
-          DT=$(cat unpack/boot.img-dt)
           HASH_TYPE=$(cat unpack/boot.img-hashtype)
-          KERNEL=$(unpack/boot.img-kernel)
+          KERNEL="unpack/boot.img-kernel"
           KOFF=$(cat unpack/boot.img-kernel_offset)
           PATCH_LVL=$(cat unpack/boot.img-os_patch_level)
           OS_VERSION=$(cat unpack/boot.img-os_version)
           PAGESIZE=$(cat unpack/boot.img-pagesize)
-          RAM_DISK=$(unpack/boot.img-ramdisk)
+          RAM_DISK="unpack/boot.img-ramdisk"
           ROFF=$(cat unpack/boot.img-ramdisk_offset)
           SOFF=$(cat unpack/boot.img-second_offset)
           TOFF=$(cat unpack/boot.img-tags_offset)
