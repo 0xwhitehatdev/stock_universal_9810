@@ -78,7 +78,7 @@ jobs:
           ROFF=$(cat unpack/boot.img-ramdisk_offset)
           SOFF=$(cat unpack/boot.img-second_offset)
           TOFF=$(cat unpack/boot.img-tags_offset)
-          HASH=$(cat unpack/boot.img-hash)
+          # HASH=$(cat unpack/boot.img-hash)
 
           DT=""
 
@@ -96,7 +96,7 @@ jobs:
             --ramdisk_offset "$ROFF" \
             --second_offset "$SOFF" \
             --tags_offset "$TOFF" \
-            --hash "$HASH" \
+            # --hash "$HASH" \
             $DT \
             -o boot-new.img
 
