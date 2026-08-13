@@ -72,14 +72,6 @@ jobs:
 
       - name: Repack boot.img
         run: |
-          CMDLINE=$(cat unpack/boot.img-cmdline)
-          BASE=$(cat unpack/boot.img-base)
-          PAGESIZE=$(cat unpack/boot.img-pagesize)
-          KOFF=$(cat unpack/boot.img-kernel_offset)
-          ROFF=$(cat unpack/boot.img-ramdisk_offset)
-          SOFF=$(cat unpack/boot.img-second_offset)
-          TOFF=$(cat unpack/boot.img-tags_offset)
-          # HASH=$(cat unpack/boot.img-hash)
 
           DT=""
 
@@ -87,18 +79,37 @@ jobs:
             DT="--dt unpack/boot.img-dt"
           fi
 
+          BASE=$(cat unpack/boot.img-base)
+          BOARD=$(cat unpack/boot.img-board)
+          CMDLINE=$(cat unpack/boot.img-cmdline)
+          DT=$(cat unpack/boot.img-dt)
+          HASH_TYPE=$(cat unpack/boot.img-hashtype)
+          KERNEL=$(cat unpack/boot.img-kernel)
+          KOFF=$(cat unpack/boot.img-kernel_offset)
+          PATCH_LVL=$(cat unpack/boot.img-os_patch_level)
+          OS_VERSION=$(cat unpack/boot.img-os_version)
+          PAGESIZE=$(cat unpack/boot.img-pagesize)
+          RAM_DISK=$(cat unpack/boot.img-ramdisk)
+          ROFF=$(cat unpack/boot.img-ramdisk_offset)
+          SOFF=$(cat unpack/boot.img-second_offset)
+          TOFF=$(cat unpack/boot.img-tags_offset)
+
           ./mktool/tools/mkbootimg \
-            --kernel unpack/boot.img-zImage \
-            --ramdisk unpack/boot.img-ramdisk.gz \
-            --cmdline "$CMDLINE" \
-            --base "$BASE" \
-            --pagesize "$PAGESIZE" \
-            --kernel_offset "$KOFF" \
-            --ramdisk_offset "$ROFF" \
-            --second_offset "$SOFF" \
-            --tags_offset "$TOFF" \
-            $DT \
-            -o boot-new.img
+                --kernel "$KERNEL" \
+                --ramdisk "$RAM_DISK" \
+                --cmdline "$CMDLINE" \
+                --base "$BASE" \
+                --pagesize "$PAGESIZE" \
+                --kernel_offset "$KOFF" \
+                --ramdisk_offset "$ROFF" \
+                --second_offset "$SOFF" \
+                --tags_offset "$TOFF" \
+                "$DT" \
+                --board "$BOARD" \
+                --os_version "$OS_VERSION" \
+                --os_patch_level "$PATCH_LVL" \
+                --hashtype "$HASH_TYPE" \
+                -o boot-new.img
             
       - uses: actions/upload-artifact@v4
         with:
