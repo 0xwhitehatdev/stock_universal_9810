@@ -67,6 +67,7 @@ jobs:
           ./mktool/tools/unpackbootimg \
             -i Kitchen/boot.img \
             -o unpack
+          ls unpack
 
       - name: Replace kernel
         run: |
@@ -74,29 +75,43 @@ jobs:
 
       - name: Repack boot.img
         run: |
-          CMDLINE=$(cat unpack/boot.img-cmdline)
+
+
           BASE=$(cat unpack/boot.img-base)
-          PAGESIZE=$(cat unpack/boot.img-pagesize)
+          BOARD=$(cat unpack/boot.img-board)
+          CMDLINE=$(cat unpack/boot.img-cmdline)
+          HASH_TYPE=$(cat unpack/boot.img-hashtype)
+          KERNEL="unpack/boot.img-kernel"
           KOFF=$(cat unpack/boot.img-kernel_offset)
+          PATCH_LVL=$(cat unpack/boot.img-os_patch_level)
+          OS_VERSION=$(cat unpack/boot.img-os_version)
+          PAGESIZE=$(cat unpack/boot.img-pagesize)
+          RAM_DISK="unpack/boot.img-ramdisk"
           ROFF=$(cat unpack/boot.img-ramdisk_offset)
           SOFF=$(cat unpack/boot.img-second_offset)
           TOFF=$(cat unpack/boot.img-tags_offset)
-          HASH=$(cat unpack/boot.img-hash)
-
-          DT=""
-
-          if [ -f unpack/boot.img-dt ]; then
-            DT="--dt unpack/boot.img-dt"
-          fi
 
           ./mktool/tools/mkbootimg \
-            --kernel unpack/boot.img-zImage \
-            --ramdisk unpack/boot.img-ramdisk.gz \
-            --cmdline "$CMDLINE" \
-            --base "$BASE" \
-            --pagesize "$PAGESIZE" \
-            --kernel_offset "$KOFF" \
-            --ramdisk_offset "$ROFF" \
+                --kernel "$KERNEL" \
+                --ramdisk "$RAM_DISK" \
+                --cmdline "$CMDLINE" \
+                --base "$BASE" \
+                --pagesize "$PAGESIZE" \
+                --kernel_offset "$KOFF" \
+                --ramdisk_offset "$ROFF" \
+                --second_offset "$SOFF" \
+                --tags_offset "$TOFF" \
+                --dt unpack/boot.img-dt \
+                --board "$BOARD" \
+                --os_version "$OS_VERSION" \
+                --os_patch_level "$PATCH_LVL" \
+                --hashtype "$HASH_TYPE" \
+                -o boot-new.img
+            
+      - uses: actions/upload-artifact@v4
+        with:
+          name: boot-new
+          path: boot-new.img
             --second_offset "$SOFF" \
             --tags_offset "$TOFF" \
             --hash "$HASH" \
