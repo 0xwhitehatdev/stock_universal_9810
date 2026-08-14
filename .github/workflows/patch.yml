@@ -2,7 +2,7 @@ name: Patch Boot Image
 
 on:
   workflow_run:
-    workflows: ["Patch"]
+    workflows: ["Build Android Kernel"]
     types:
       - completed
 
